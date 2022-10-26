@@ -12,17 +12,17 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import axios from 'axios';
 import {Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 import {AuthService} from '../services';
-import axios from 'axios';
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository,
+    public usuarioRepository: UsuarioRepository,
     @service(AuthService)
     public servicioAuth: AuthService
-  ) {}
+  ) { }
 
   @post('/usuarios')
   @response(200, {
