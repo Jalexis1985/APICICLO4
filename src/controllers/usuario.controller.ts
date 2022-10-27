@@ -50,10 +50,10 @@ export class UsuarioController {
     tipo = configuracion.tipoComunicacion; //Definimos el tipo de comunicacion
     let servicioWeb = '';
     let destino = '';
-    if(tipo == "sms"){
+    if (tipo == "sms") {
       destino = usuario.Telefono;
       servicioWeb = 'send_sms';
-    }else{
+    } else {
       destino = usuario.Correo;
       servicioWeb = 'send_email';
     }
@@ -77,7 +77,7 @@ export class UsuarioController {
       console.log(err)
     });
     const p = await this.usuarioRepository.create(usuario);
-  return p;
+    return p;
   }
 
   @get('/usuarios/count')
