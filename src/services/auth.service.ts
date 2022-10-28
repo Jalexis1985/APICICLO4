@@ -1,12 +1,12 @@
 import { /* inject, */ BindingScope, injectable} from '@loopback/core';
+import {repository} from '@loopback/repository';
+import {configuracion} from '../config/config';
+import {Usuario} from '../models';
+import {UsuarioRepository} from '../repositories';
 // Nuevas librerias
 const generator = require("password-generator");
 const cryptoJS = require("crypto-js");
-import {configuracion} from '../config/config';
-import {Usuario} from '../models';
 const jwt = require('jsonwebtoken');
-import {UsuarioRepository} from '../repositories';
-import {repository} from '@loopback/repository';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class AuthService {
@@ -24,40 +24,44 @@ export class AuthService {
     return claveCifrada;
   }
 
-}
-//JWT
-GenerarTokenJWT(Usuario: Usuario) {
-  let token = jwt.sign({
-    data: {
-      id: Usuario.id,
-      correo: Usuario.correo,
-      nombre: Usuario.nombre + " " + Usuario.apellidos
-    }
-  }, configuracion.claveJWT)
+  //JWT
+  GenerarTokenJWT(usuario: Usuario) {
+    const token = jwt.sign({
+      data: {
+        id: usuario.Id,
+        correo: usuario.Correo,
+        nombre: usuario.Nombre + " " + usuario.Apellidos
+      }
+    }, configuracion.claveJWT)
 
-  return token
-}
-validarTokenJWT(token: string) {
-  try {
-    let datos = jwt.verify(token, configuracion.claveJWT);
-    return datos;
-  } catch (error) {
-    return false;
+    return token
   }
-}
-//Autenticacion
-IdentificarPersona(correo: string, password: string) {
-  try {
-    let p = this.usuarioRepository.findOne({where:
-                  {
-                  correo: correo,
-                  password: password
-                }})
-    if (p) {
-      return p;
+
+  validarTokenJWT(token: string) {
+    try {
+      const datos = jwt.verify(token, configuracion.claveJWT);
+      return datos;
+    } catch (error) {
+      return false;
     }
-    return false;
-  } catch {
-    return false;
   }
+
+  //Autenticacion
+  IdentificarPersona(correo: string, password: string) {
+    try {
+      const p = this.usuarioRepository.findOne({where:
+                    {
+                    Correo: correo,
+                    Password: password
+                  }})
+      if (p) {
+        return p;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+
 }
