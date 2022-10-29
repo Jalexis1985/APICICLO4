@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -9,22 +10,54 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
 import axios from 'axios';
 import {configuracion} from '../config/config';
-import {Usuario} from '../models';
+import {Credenciales, Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 import {AuthService} from '../services';
+@authenticate("admin")
+@authenticate("admin")
 export class UsuarioController {
   constructor(
+
     @repository(UsuarioRepository)
     public usuarioRepository: UsuarioRepository,
     @service(AuthService)
     public servicioAuth: AuthService
   ) { }
-
+  @authenticate.skip()
+  //Servicio de login
+  @post('/login', {
+    responses: {
+      '200': {
+        description: 'Identificación de usuarios'
+      }
+    }
+  })
+  async login(
+    @requestBody() credenciales: Credenciales
+  ) {
+    const p = await this.servicioAuth.identificarPersona(credenciales.usuario, credenciales.password);
+    if (p) {
+      const token = this.servicioAuth.GenerarTokenJWT(p);
+      return {
+        status: "success",
+        data: {
+          nombre: p.Nombre,
+          apellidos: p.Apellidos,
+          correo: p.Correo,
+          id: p.Id
+        },
+        token: token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos invalidos")
+    }
+  }
+  @authenticate.skip()
   @post('/usuarios')
   @response(200, {
     description: 'Usuario model instance',
